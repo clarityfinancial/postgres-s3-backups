@@ -28,6 +28,7 @@ get_backup() {
 restore_database_from_backup() {
     echo "restore_database_from_backup start"
     gunzip < backup.sql.gz | psql "$DATABASE_URL"
+    rm backup.sql.gz
     echo "restore_database_from_backup end"
 }
 
