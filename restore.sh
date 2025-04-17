@@ -20,7 +20,8 @@ get_backup() {
     echo "Getting backup file from $S3_BUCKET_NAME ..."
     backup_key=$(get_most_recent_backup_key)
     echo "Backup key: $backup_key"
-    s3api get-object --key "$(backup_key)" backup.sql.gz
+    s3api get-object --key "$backup_key" \
+        backup.sql.gz
 }
 
 drop_database() {
