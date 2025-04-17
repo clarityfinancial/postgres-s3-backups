@@ -22,6 +22,7 @@ get_backup() {
     echo "Backup key: $backup_key"
     s3api get-object --key "$backup_key" \
         backup.sql.gz
+    gunzip < backup.sql.gz
 }
 
 drop_database() {
@@ -32,7 +33,7 @@ drop_database() {
 
 restore_database_from_backup() {
     echo "Restoring database..."
-    gunzip < backup.sql.gz | pg_restore "$DATABASE_URL" -c
+    pg_restore -c -d "$DATABASE_URL" backup.sql
     echo "Restoration complete."
 }
 
