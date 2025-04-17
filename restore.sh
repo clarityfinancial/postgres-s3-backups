@@ -20,8 +20,7 @@ get_backup() {
     echo "Getting most recent backup file from $S3_BUCKET_NAME ..."
 
     s3api get-object \
-        --key "$(get_most_recent_backup)" \
-        --output backup.sql.gz
+        --key "$(get_most_recent_backup)" backup.sql.gz
 }
 
 restore_backup() {
