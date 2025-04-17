@@ -32,8 +32,7 @@ drop_database() {
 
 restore_database_from_backup() {
     echo "Restoring database..."
-    psql "$DATABASE_URL" -c "CREATE DATABASE IF NOT EXISTS $DATABASE_NAME;"
-    gunzip < backup.sql.gz | psql "$DATABASE_URL"
+    gunzip < backup.sql.gz | pg_restore "$DATABASE_URL" -c
     echo "Restoration complete."
 }
 
@@ -48,7 +47,6 @@ create_remix_role() {
 main() {
     echo "Restoring database..."
     get_backup
-    drop_database
     restore_database_from_backup
     create_remix_role
     echo "Database restoration complete."
