@@ -42,7 +42,7 @@ main() {
     echo "Restoring database..."
     get_backup
     restore_database_from_backup
-    create_remix_role
+    # create_remix_role
     echo "Database restoration complete."
 }
 
