@@ -22,18 +22,11 @@ get_backup() {
     echo "Backup key: $backup_key"
     s3api get-object --key "$backup_key" \
         backup.sql.gz
-    gunzip < backup.sql.gz
-}
-
-drop_database() {
-    echo "Dropping database..."
-    psql "$DATABASE_URL" -c "DROP DATABASE IF EXISTS $DATABASE_NAME;"
-    echo "Drop database complete."
 }
 
 restore_database_from_backup() {
     echo "Restoring database..."
-    pg_restore -c -d "$DATABASE_URL" backup.sql
+    gunzip < backup.sql.gz | psql "$DATABASE_URL"
     echo "Restoration complete."
 }
 
