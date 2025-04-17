@@ -13,7 +13,7 @@ s3api() {
 }
 
 get_most_recent_backup() {
-    s3api list-objects --prefix "$(date +%Y/%m/%d/)" --query "Contents[?LastModified==\`$(date +%Y-%m-%d)\`].Key" --output text
+    s3api list-objects --query 'sort_by(Contents, &LastModified)[-1].Key' --output text
 }
 
 get_backup() {
