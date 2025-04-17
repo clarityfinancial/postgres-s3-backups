@@ -17,33 +17,39 @@ get_most_recent_backup_key() {
 }
 
 get_backup() {
-    echo "Getting backup file from $S3_BUCKET_NAME ..."
+    echo "get_backup start"
     backup_key=$(get_most_recent_backup_key)
     echo "Backup key: $backup_key"
     s3api get-object --key "$backup_key" \
         backup.sql.gz
+    echo "get_backup end"
 }
 
 restore_database_from_backup() {
-    echo "Restoring database..."
+    echo "restore_database_from_backup start"
     gunzip < backup.sql.gz | psql "$DATABASE_URL"
-    echo "Restoration complete."
+    echo "restore_database_from_backup end"
 }
 
 create_remix_role() {
-    echo "Creating roles..."
-    psql "$DATABASE_URL" -c "CREATE ROLE IF NOT EXISTS remix WITH LOGIN PASSWORD $DATABASE_REMIX_USER_PASSWORD;"
-    psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO remix;"
-    psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO remix;"
-    echo "Role creation complete."
+    echo "create_remix_role start"
+    # Check if role exists
+    if ! psql "$DATABASE_URL" -tAc "SELECT 1 FROM pg_roles WHERE rolname='remix'" | grep -q 1; then
+        psql "$DATABASE_URL" -c "CREATE ROLE remix WITH LOGIN PASSWORD '$DATABASE_REMIX_USER_PASSWORD';"
+        psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO remix;"
+        psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO remix;"
+    else
+        echo "Role 'remix' already exists, skipping creation"
+    fi
+    echo "create_remix_role end"
 }
 
 main() {
-    echo "Restoring database..."
+    echo "main start"
     get_backup
     restore_database_from_backup
-    # create_remix_role
-    echo "Database restoration complete."
+    create_remix_role
+    echo "main end"
 }
 
 main
