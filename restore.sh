@@ -20,7 +20,7 @@ get_backup() {
     echo "get_backup start"
     backup_key=$(get_most_recent_backup_key)
     echo "Backup key: $backup_key"
-    s3 cp --expected-size=160000000000 - "s3://$S3_BUCKET_NAME/$(backup_key)" \
+    s3 cp --expected-size=160000000000 - "s3://$S3_BUCKET_NAME/$backup_key" \
         backup.sql.gz
     echo "get_backup end"
 }
