@@ -20,14 +20,13 @@ get_backup() {
     echo "get_backup start"
     backup_key=$(get_most_recent_backup_key)
     echo "Backup key: $backup_key"
-    cd /data && s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/2025/04/18/backup-01-30-43.sql.gz" /data/backup.sql.gz
+    s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/2025/04/18/backup-01-30-43.sql.gz" -
     echo "get_backup end"
 }
 
 restore_database_from_backup() {
     echo "restore_database_from_backup start"
-    gunzip < /data/backup.sql.gz | psql "$DATABASE_URL"
-    rm /data/backup.sql.gz
+    get_backup | gunzip | psql "$DATABASE_URL"
     echo "restore_database_from_backup end"
 }
 
