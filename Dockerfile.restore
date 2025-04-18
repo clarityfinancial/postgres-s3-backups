@@ -8,6 +8,5 @@ WORKDIR /scripts
 COPY install-pg-dump.sh .
 RUN "/scripts/install-pg-dump.sh"
 
-WORKDIR /data
 COPY restore.sh .
 ENTRYPOINT ["tail", "-f", "/dev/null"]
