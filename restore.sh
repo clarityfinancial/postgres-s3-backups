@@ -20,14 +20,14 @@ get_backup() {
     echo "get_backup start"
     backup_key=$(get_most_recent_backup_key)
     echo "Backup key: $backup_key"
-    s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$backup_key" backup.sql.gz
+    s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$backup_key" /var/data/backup.sql.gz
     echo "get_backup end"
 }
 
 restore_database_from_backup() {
     echo "restore_database_from_backup start"
-    gunzip < backup.sql.gz | psql "$DATABASE_URL"
-    rm backup.sql.gz
+    cd /var/data && gunzip < backup.sql.gz | psql "$DATABASE_URL"
+    rm /var/data/backup.sql.gz
     echo "restore_database_from_backup end"
 }
 
@@ -46,7 +46,6 @@ create_remix_role() {
 
 main() {
     echo "main start"
-    cd /var/data
     get_backup
     restore_database_from_backup
     create_remix_role
