@@ -46,6 +46,7 @@ create_remix_role() {
 
 main() {
     echo "main start"
+    cd /var/data
     get_backup
     restore_database_from_backup
     create_remix_role
