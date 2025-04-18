@@ -26,7 +26,7 @@ get_backup() {
 
 restore_database_from_backup() {
     echo "restore_database_from_backup start"
-    get_backup | gunzip | psql "$DATABASE_URL"
+    gunzip < get_backup | psql "$DATABASE_URL"
     echo "restore_database_from_backup end"
 }
 
