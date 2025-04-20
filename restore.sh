@@ -37,7 +37,7 @@ create_remix_role() {
 }
 
 main() {
-    get_backup | gunzip | psql "$DATABASE_URL"
+    restore_database_from_backup
     create_remix_role
 }
 
