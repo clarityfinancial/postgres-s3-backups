@@ -18,11 +18,7 @@ get_most_recent_backup_key() {
 
 get_backup() {
     backup_key=$(get_most_recent_backup_key)
-    s3 cp --quiet --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$backup_key" -
-}
-
-restore_database_from_backup() {
-    aws s3 cp --region "us-west-2" --expected-size=160000000000 "s3://clarity-database-backupsqa/2025/04/20/backup-12-00-41.sql.gz" | gunzip | psql "$DATABASE_URL"
+    s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$backup_key" -
 }
 
 create_remix_role() {
@@ -37,7 +33,7 @@ create_remix_role() {
 }
 
 main() {
-    restore_database_from_backup
+    get_backup | gunzip | psql "$DATABASE_URL"
     create_remix_role
 }
 
