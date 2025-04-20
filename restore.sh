@@ -22,7 +22,7 @@ get_backup() {
 }
 
 restore_database_from_backup() {
-    aws s3 cp --region "us-west-2" --expected-size=160000000000 "s3://clarity-database-backupsqa/2025/04/20/backup-12-00-41.sql.gz" | psql "$DATABASE_URL"
+    aws s3 cp --region "us-west-2" --expected-size=160000000000 "s3://clarity-database-backupsqa/2025/04/20/backup-12-00-41.sql.gz" | gunzip | psql "$DATABASE_URL"
 }
 
 create_remix_role() {
