@@ -17,7 +17,8 @@ get_most_recent_backup_key() {
 }
 
 get_backup() {
-    s3 cp --quiet --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$(get_most_recent_backup_key)" -
+    backup_key=$(get_most_recent_backup_key)
+    s3 cp --quiet --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$backup_key" -
 }
 
 restore_database_from_backup() {
@@ -36,7 +37,6 @@ create_remix_role() {
 }
 
 main() {
-    get_backup
     get_backup | gunzip | psql "$DATABASE_URL"
     create_remix_role
 }
