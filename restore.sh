@@ -22,7 +22,7 @@ get_backup() {
 }
 
 restore_database_from_backup() {
-    get_backup | gunzip | psql "$DATABASE_URL"
+    get_backup | gunzip
 }
 
 create_remix_role() {
