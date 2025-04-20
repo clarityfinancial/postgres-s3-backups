@@ -17,21 +17,14 @@ get_most_recent_backup_key() {
 }
 
 get_backup() {
-    echo "get_backup start"
-    backup_key=$(get_most_recent_backup_key)
-    echo "Backup key: $backup_key"
-    s3 cp --expected-size=160000000000 "s3://$S3_BUCKET_NAME/2025/04/18/backup-01-30-43.sql.gz" -
-    echo "get_backup end"
+    s3 cp --quiet --expected-size=160000000000 "s3://$S3_BUCKET_NAME/$(get_most_recent_backup_key)" -
 }
 
 restore_database_from_backup() {
-    echo "restore_database_from_backup start"
-    gunzip < get_backup | psql "$DATABASE_URL"
-    echo "restore_database_from_backup end"
+    get_backup | gunzip | psql "$DATABASE_URL"
 }
 
 create_remix_role() {
-    echo "create_remix_role start"
     # Check if role exists
     if ! psql "$DATABASE_URL" -tAc "SELECT 1 FROM pg_roles WHERE rolname='remix'" | grep -q 1; then
         psql "$DATABASE_URL" -c "CREATE ROLE remix WITH LOGIN PASSWORD '$DATABASE_REMIX_USER_PASSWORD';"
@@ -40,15 +33,12 @@ create_remix_role() {
     else
         echo "Role 'remix' already exists, skipping creation"
     fi
-    echo "create_remix_role end"
 }
 
 main() {
-    echo "main start"
     get_backup
-    restore_database_from_backup
+    get_backup | gunzip | psql "$DATABASE_URL"
     create_remix_role
-    echo "main end"
 }
 
 main
