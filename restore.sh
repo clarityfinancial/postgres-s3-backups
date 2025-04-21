@@ -3,6 +3,7 @@
 set -o errexit -o nounset -o pipefail
 
 export AWS_PAGER=""
+PROD_DATABASE_ID="dpg-cglhh902qv24jlv6fnfg-a"
 
 s3() {
     aws s3 --region "$AWS_REGION" "$@"
@@ -29,12 +30,19 @@ create_remix_role() {
         psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO remix;"
     else
         echo "Role 'remix' already exists, skipping creation"
+        psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO remix;"
+        psql "$DATABASE_URL" -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO remix;"
     fi
 }
 
 main() {
-    get_backup | gunzip | psql "$DATABASE_URL"
-    create_remix_role
+    if [[ "$DATABASE_URL" == *"$PROD_DATABASE_ID"* ]]; then
+        echo "Database is production '$PROD_DATABASE_ID', skipping steps"
+    else
+        psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE;CREATE SCHEMA public;"
+        get_backup | gunzip | psql "$DATABASE_URL"
+        create_remix_role
+    fi
 }
 
 main
