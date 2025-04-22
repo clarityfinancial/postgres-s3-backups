@@ -27,16 +27,20 @@ create_remix_role() {
         psql "$DATABASE_URL" -c "CREATE ROLE remix WITH LOGIN PASSWORD '$DATABASE_REMIX_USER_PASSWORD';"
     fi
 
+    # Grant remix the permissions it needs
     psql "$DATABASE_URL" -c "GRANT USAGE ON SCHEMA public TO remix;"
     psql "$DATABASE_URL" -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO remix;"
     psql "$DATABASE_URL" -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO remix;"
 
-    # Grant remix the permissions it needs
     psql "$DATABASE_URL" -c "grant execute on procedure actions_sync_refresh to remix; grant execute on procedure actions_sync_refresh_by_recency to remix; grant execute on procedure actions_sync_refresh_by_bulk_action_id to remix; grant execute on procedure actions_sync_refresh_by_organization_id to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync_sequence_id_seq to remix;"
 
-    psql "$DATABASE_URL" -c "grant execute on procedure awards_sync_refresh to remix; grant execute on procedure awards_sync_refresh_by_recency to remix; grant execute on procedure awards_sync_refresh_by_award_id to remix; grant execute on procedure awards_sync_refresh_by_organization_id to remix; grant execute on procedure awards_sync_refresh_by_household_id to remix; grant execute on procedure awards_sync_refresh_by_student_id to remix;"
+    psql "$DATABASE_URL" -c "grant execute on proceduregrant execute on procedure applications_sync_refresh to remix; grant execute on procedure applications_sync_refresh_by_recency to remix; grant execute on procedure applications_sync_refresh_by_organization_id to remix; grant execute on procedure applications_sync_refresh_by_application_id to remix; grant execute on procedure applications_sync_refresh_by_household_id to remix; grant execute on procedure applications_sync_refresh_by_student_id to remix; grant execute on procedure applications_sync_refresh_by_tvo_id to remix;"
+    psql "$DATABASE_URL" -c "grant all privileges on applications_sync to remix;"
+    psql "$DATABASE_URL" -c "grant all privileges on applications_sync_sequence_id_seq to remix;"
+
+    psql "$DATABASE_URL" -c "grant execute on procedure awards_sync_refresh to remix; grant execute on procedure awards_sync_refresh_by_recency to remix; grant execute on procedure awards_sync_refresh_by_award_id to remix; grant execute on procedure awards_sync_refresh_by_organization_id to remix; grant execute on procedure awards_sync_refresh_by_household_id to remix; grant execute on procedure awards_sync_refresh_by_student_id to remix; grant execute on procedure awards_sync_refresh_by_academic_year_student_id to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on awards_sync to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on awards_sync_sequence_id_seq to remix;"
 
