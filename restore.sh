@@ -27,15 +27,13 @@ create_remix_role() {
         psql "$DATABASE_URL" -c "CREATE ROLE remix WITH LOGIN PASSWORD '$DATABASE_REMIX_USER_PASSWORD';"
     fi
 
-    # Grant remix the permissions it needs
+    # Grant remix necessary permissions
     psql "$DATABASE_URL" -c "GRANT USAGE ON SCHEMA public TO remix;"
     psql "$DATABASE_URL" -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO remix;"
     psql "$DATABASE_URL" -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO remix;"
 
-    echo "Starting execute grants."
     psql "$DATABASE_URL" -c "grant execute on all functions in schema public to remix;"
     
-    echo "Starting privilige grants."
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync_sequence_id_seq to remix;"
 
@@ -67,6 +65,7 @@ create_remix_role() {
 run_post_restore_actions() {
     # Disabled celery beat tasks for controlled re-enablement
     psql "$DATABASE_URL" -c "update django_celery_beat_periodictask set enabled = false;"
+    psql "$DATABASE_URL" -c "update django_celery_beat_periodictask set enabled = true where task in ('celery.backend_cleanup', 'refresh_sync_table_invoice_line_items', 'refresh_sync_table_charge_requests', 'refresh_sync_table_contracts', 'refresh_sync_table_awards', 'refresh_sync_table_tvos', 'refresh_sync_table_applications', 'refresh_sync_table_students', 'refresh_policy_sim_archive_materialized_view', 'prepare_application_recalculation_batches');"
 }
 
 main() {
