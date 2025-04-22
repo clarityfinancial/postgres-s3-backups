@@ -27,6 +27,11 @@ create_remix_role() {
         psql "$DATABASE_URL" -c "CREATE ROLE remix WITH LOGIN PASSWORD '$DATABASE_REMIX_USER_PASSWORD';"
     fi
 
+    psql "$DATABASE_URL" -c "GRANT USAGE ON SCHEMA public TO remix;"
+    psql "$DATABASE_URL" -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO remix;"
+    psql "$DATABASE_URL" -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO remix;"
+
+    # Grant remix the permissions it needs
     psql "$DATABASE_URL" -c "grant execute on procedure actions_sync_refresh to remix; grant execute on procedure actions_sync_refresh_by_recency to remix; grant execute on procedure actions_sync_refresh_by_bulk_action_id to remix; grant execute on procedure actions_sync_refresh_by_organization_id to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync to remix;"
     psql "$DATABASE_URL" -c "grant all privileges on actions_sync_sequence_id_seq to remix;"
@@ -60,6 +65,11 @@ create_remix_role() {
     psql "$DATABASE_URL" -c "grant all privileges on tax_verifications_sync_sequence_id_seq to remix;"
 }
 
+run_post_restore_actions() {
+    # Disabled celery beat tasks for controlled re-enablement
+    psql "$DATABASE_URL" -c "update django_celery_beat_periodictask set enabled = false;"
+}
+
 main() {
     if [[ "$DATABASE_URL" == *"$PROD_DATABASE_ID"* ]]; then
         echo "Database is production '$PROD_DATABASE_ID', skipping steps"
@@ -67,6 +77,7 @@ main() {
         psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE;CREATE SCHEMA public;"
         get_backup | gunzip | psql "$DATABASE_URL"
         create_remix_role
+        run_post_restore_actions
     fi
 }
 
