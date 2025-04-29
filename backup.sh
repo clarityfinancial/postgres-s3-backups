@@ -54,8 +54,12 @@ pg_dump_database() {
         --quote-all-identifiers
     )
 
-    if [ "${EXCLUDE_TABLE_DATA:-}" = "true" ]; then
-        pg_dump_args+=(--exclude-table-data="public.*_historical" --exclude-table-data="public.tax_verification_logs")
+    if [ "${EXCLUDE_HISTORICAL_DATA:-}" = "true" ]; then
+        pg_dump_args+=(--exclude-table-data="public.*_historical")
+    fi
+
+    if [ "${EXCLUDE_TVO_LOG_DATA:-}" = "true" ]; then
+        pg_dump_args+=(--exclude-table-data="public.tax_verification_logs")
     fi
 
     pg_dump "${pg_dump_args[@]}" "$DATABASE_URL"
