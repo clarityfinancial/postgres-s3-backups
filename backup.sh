@@ -46,7 +46,19 @@ ensure_bucket_exists() {
 }
 
 pg_dump_database() {
-    pg_dump  --exclude-table-data="" --exclude-table-data="public.*_historical" --no-owner --no-privileges --clean --if-exists --quote-all-identifiers "$DATABASE_URL"
+    local pg_dump_args=(
+        --no-owner
+        --no-privileges
+        --clean
+        --if-exists
+        --quote-all-identifiers
+    )
+
+    if [ "${EXCLUDE_TABLE_DATA:-}" = "true" ]; then
+        pg_dump_args+=(--exclude-table-data="public.*_historical" --exclude-table-data="public.tax_verification_logs")
+    fi
+
+    pg_dump "${pg_dump_args[@]}" "$DATABASE_URL"
 }
 
 upload_to_bucket() {
